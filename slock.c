@@ -19,10 +19,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#include "arg.h"
 #include "util.h"
-
-char *argv0;
 
 enum {
 	INIT,
@@ -109,15 +106,8 @@ gethash(void)
 	}
 #else
 	if (!strcmp(hash, "*")) {
-#ifdef __OpenBSD__
-		if (!(pw = getpwuid_shadow(getuid())))
-			die("slock: getpwnam_shadow: cannot retrieve shadow entry. "
-			    "Make sure to suid or sgid slock.\n");
-		hash = pw->pw_passwd;
-#else
 		die("slock: getpwuid: cannot retrieve shadow entry. "
 		    "Make sure to suid or sgid slock.\n");
-#endif /* __OpenBSD__ */
 	}
 #endif /* HAVE_SHADOW_H */
 
@@ -165,7 +155,6 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				else
 					running = !!strcmp(inputhash, hash);
 				if (running) {
-					XBell(dpy, 100);
 					failure = 1;
 				}
 				explicit_bzero(&passwd, sizeof(passwd));
@@ -187,7 +176,7 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				}
 				break;
 			}
-			color = len ? INPUT : ((failure || failonclear) ? FAILED : INIT);
+			color = len ? INPUT : (failure ? FAILED : INIT);
 			if (running && oldc != color) {
 				for (screen = 0; screen < nscreens; screen++) {
 					XSetWindowBackground(dpy,
@@ -297,12 +286,6 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 	return NULL;
 }
 
-static void
-usage(void)
-{
-	die("usage: slock [-v] [cmd [arg ...]]\n");
-}
-
 int
 main(int argc, char **argv) {
 	struct xrandr rr;
@@ -314,14 +297,6 @@ main(int argc, char **argv) {
 	const char *hash;
 	Display *dpy;
 	int s, nlocks, nscreens;
-
-	ARGBEGIN {
-	case 'v':
-		fprintf(stderr, "slock-"VERSION"\n");
-		return 0;
-	default:
-		usage();
-	} ARGEND
 
 	/* validate drop-user and -group */
 	errno = 0;
