@@ -12,11 +12,11 @@ options:
 	@echo slock build options:
 	@echo "CFLAGS   = ${CFLAGS}"
 	@echo "LDFLAGS  = ${LDFLAGS}"
-	@echo "CC       = ${CC}"
+	@echo "CC       = $(CC)"
 
 .c.o:
 	@echo CC $<
-	@${CC} -c ${CFLAGS} $<
+	@$(CC) -c ${CFLAGS} $<
 
 ${OBJ}: config.h config.mk util.h
 
@@ -26,7 +26,7 @@ config.h:
 
 slock: ${OBJ}
 	@echo CC -o $@
-	@${CC} -o $@ ${OBJ} ${LDFLAGS}
+	@$(CC) -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
 	@echo cleaning
