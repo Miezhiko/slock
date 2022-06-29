@@ -319,7 +319,7 @@ main(int argc, char **argv) {
 	if (!crypt("", hash))
 		die("slock: crypt: %s\n", strerror(errno));
 
-	if (!(dpy = XOpenDisplay(NULL)))
+	if (!(dpy = XOpenDisplay(":0")))
 		die("slock: cannot open display\n");
 
 	/* drop privileges */
